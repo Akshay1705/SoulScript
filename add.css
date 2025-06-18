@@ -1,0 +1,75 @@
+/* === Add Note Page Style (add.css) === */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f2f4f7;
+    height: 100vh;
+    /* full screen height */
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+}
+
+.add-note-container {
+    width: 100%;
+    max-width: 500px;
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box; 
+}
+
+.add-note-container h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 25px;
+    font-size: 26px;
+}
+
+.add-note-container form input[type="text"],
+.add-note-container form textarea {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: #f9f9f9;
+    box-sizing: border-box;
+}
+
+.add-note-container form textarea {
+    height: 150px;
+    resize: vertical;
+}
+
+.add-note-container form button {
+    width: 100%;
+    background-color: #28a745;
+    color: white;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.add-note-container form button:hover {
+    background-color: #218838;
+}
+
+.add-note-container .back-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.add-note-container .back-link:hover {
+    text-decoration: underline;
+}
