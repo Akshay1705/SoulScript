@@ -4,8 +4,11 @@ include 'db.php';
 include 'session.php';
 
 if (isset($_GET['search']) && !isset($_GET['page'])) {
+    // Get the search term from URL and encode it for safe URL usage
     $search = urlencode($_GET['search']);
+    // If filter is also set, encode it as well
     $filter = isset($_GET['filter']) ? urlencode($_GET['filter']) : '';
+    // Redirect to the first page with search and filter parameters
     header("Location: index.php?search=$search&filter=$filter&page=1");
     exit;
 }
@@ -14,53 +17,57 @@ $user_id = $_SESSION['user_id']; // Get logged-in user's ID
 
 // === PAGINATION SETUP ===
 $limit = 6; // Notes per page
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;// is set then get the page number from URL, if not set then default to 1
-if ($page < 1) $page = 1;//safty check to ensure page is at least 1 if user try -1,0-2 etc. ==> page == 1.
+// is set then get the page number from URL, if not set then default to 1
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) $page = 1;//ensure if user (try -1,0-2 etc.) ==>( page == 1).
 $offset = ($page - 1) * $limit;
 //important line:it calc starting point(offset) in the DB to fetch notes strting from
 //if page is 1->0(skips) , 2->6(skips), 3->12(skips), etc.
 //offset is the number of records to skip before starting to fetch records
 
 // === SEARCH FUNCTIONALITY ===
+// Get search term from URL, if not set then default = ""
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
+// and filter type from URL, if not set then default = ""
 $filter = isset($_GET['filter']) ? $_GET['filter'] : '';
 $limit = 6;
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-if ($page < 1) $page = 1;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;//check page no. pass in URL? yes->safe cast to int , no->default to 1
+if ($page < 1) $page = 1;// Ensure page is at least 1
 $offset = ($page - 1) * $limit;
 
 // Count total notes with search filter
-$count_sql = "SELECT COUNT(*) AS total FROM notes WHERE user_id = $user_id";
-if ($search !== '') {
+$count_sql = "SELECT COUNT(*) AS total FROM notes WHERE user_id = $user_id";//count of total notes of specific user
+if ($search !== '') {//if search has value
+    //add search condition for both title and content to $count_sql query
     $count_sql .= " AND (title LIKE '%$search%' OR content LIKE '%$search%')";
 }
 if ($filter == 'today') {
-    $count_sql .= " AND DATE(created_at) = CURDATE()";
+    $count_sql .= " AND DATE(created_at) = CURDATE()";// Filter for today's notes
 } elseif ($filter == 'week') {
-    $count_sql .= " AND YEARWEEK(created_at, 1) = YEARWEEK(CURDATE(), 1)";
+    $count_sql .= " AND YEARWEEK(created_at, 1) = YEARWEEK(CURDATE(), 1)";// Filter for this week's notes
 } elseif ($filter == 'month') {
-    $count_sql .= " AND MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())";
+    $count_sql .= " AND MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())";//Filter for this month's notes
 }
-$count_result = mysqli_query($conn, $count_sql);
-$total_notes = mysqli_fetch_assoc($count_result)['total'];
-$total_pages = ceil($total_notes / $limit);
+$count_result = mysqli_query($conn, $count_sql);//contains 1 column and 1 row [total][23] - 23 needs to be !
+$total_notes = mysqli_fetch_assoc($count_result)['total'];// Fetch total =23
+$total_pages = ceil($total_notes / $limit);// Calculate total pages  :--> search--result=12/limit=6 => 2 pages ues in pagetion
 
 // Fetch filtered notes
-$sql = "SELECT * FROM notes WHERE user_id = $user_id";
-if ($search !== '') {
-    $sql .= " AND (title LIKE '%$search%' OR content LIKE '%$search%')";
+$sql = "SELECT * FROM notes WHERE user_id = $user_id";// Fetch notes for the logged-in user
+if ($search !== '') {//it should has search value
+    $sql .= " AND (title LIKE '%$search%' OR content LIKE '%$search%')";//now only fetch notes thet match search
 }
 if ($filter == 'today') {
-    $sql .= " AND DATE(created_at) = CURDATE()";
+    $sql .= " AND DATE(created_at) = CURDATE()";//created_at ==> CURDATE() means today
 } elseif ($filter == 'week') {
-    $sql .= " AND YEARWEEK(created_at, 1) = YEARWEEK(CURDATE(), 1)";
+    $sql .= " AND YEARWEEK(created_at, 1) = YEARWEEK(CURDATE(), 1)";//YEARWEEK(current date, 1) means this week 1 is for Monday
 } elseif ($filter == 'month') {
-    $sql .= " AND MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())";
+    $sql .= " AND MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())";// Filter for this month's notes
 }
 
 // Sorting options
 if ($filter == 'oldest') {
-    $sql .= " ORDER BY created_at ASC";
+    $sql .= " ORDER BY created_at ASC";//asc of created_at
 } elseif ($filter == 'title_asc') {
     $sql .= " ORDER BY title ASC";
 } elseif ($filter == 'title_desc') {
@@ -114,6 +121,7 @@ $result = mysqli_query($conn, $sql);
 
 <!-- Notes Section -->
 <a href="add.php" class="add-btn">+ New Journal Entry</a>
+<a href="index.php">home</a>
 <?php if (mysqli_num_rows($result) > 0): ?>
     <div class="notes-container">
     <?php while ($row = mysqli_fetch_assoc($result)): ?>
@@ -131,12 +139,14 @@ $result = mysqli_query($conn, $sql);
 
     <!-- Pagination -->
     <div class="pagination">
+        <!-- urlencode($search) ==>hello world <<<(encode)>>> hello%20world -->
         <?php if ($page > 1): ?>
             <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>&filter=<?= urlencode($filter) ?>">&laquo; Prev</a>
         <?php endif; ?>
 
         <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-            <a href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&filter=<?= urlencode($filter) ?>" class="<?= $i == $page ? 'active' : '' ?>">
+            <a href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&filter=<?= urlencode($filter) ?>" 
+            class="<?= $i == $page ? 'active' : '' ?>">
                 <?= $i ?>
             </a>
         <?php endfor; ?>
