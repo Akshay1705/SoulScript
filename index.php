@@ -121,7 +121,7 @@ $result = mysqli_query($conn, $sql);
 
 <!-- Notes Section -->
 <a href="add.php" class="add-btn">+ New Journal Entry</a>
-<a href="index.php">home</a>
+<a href="index.php" class="home-link">home</a>
 <?php if (mysqli_num_rows($result) > 0): ?>
     <div class="notes-container">
     <?php while ($row = mysqli_fetch_assoc($result)): ?>
@@ -160,7 +160,6 @@ $result = mysqli_query($conn, $sql);
     <?php if (!empty($search)): ?>
         <div class="search-error">
             ❌ No notes found for "<strong><?= htmlspecialchars($search) ?></strong>"<br>
-            <a href="index.php?page=1" class="back-link">🔙 Back to all notes</a>
         </div>
     <?php else: ?>
         <div class="message">🌱 Every journey begins with one thought. Start writing now. 💭</div>

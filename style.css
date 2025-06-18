@@ -15,7 +15,6 @@ body {
     margin-bottom: 5px;
 }
 
-
 /* ========================
    2. Layout Sections
 ======================== */
@@ -90,7 +89,8 @@ body {
 .add-btn,
 .logout-btn,
 .edit-btn,
-.delete-btn {
+.delete-btn, 
+.home-link{
     padding: 8px 14px;
     border-radius: 6px;
     font-size: 14px;
@@ -107,6 +107,13 @@ body {
 
 .add-btn:hover {
     background: #218838;
+}
+
+.home-link {
+    background: #5757e5;
+}
+.home-link:hover {
+    background: #0a0ef1c8;
 }
 
 .logout-btn {
