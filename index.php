@@ -102,7 +102,7 @@ $result = mysqli_query($conn, $sql);
         <form method="GET" action="index.php">
             <input type="text" name="search" placeholder="Search notes..." value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
             <button type="submit">🔍</button>
-            <select name="filter">
+            <select name="filter" onchange="this.form.submit()">
                 <option value="">📅 Filter by</option>
                 <option value="today" <?= (isset($_GET['filter']) && $_GET['filter'] == 'today') ? 'selected' : '' ?>>Today</option>
                 <option value="week" <?= (isset($_GET['filter']) && $_GET['filter'] == 'week') ? 'selected' : '' ?>>This Week</option>
