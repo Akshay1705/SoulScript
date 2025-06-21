@@ -3,6 +3,9 @@
 include 'db.php';
 include 'session.php';
 
+$isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+          strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
 if (isset($_GET['search']) && !isset($_GET['page'])) {
     // Get the search term from URL and encode it for safe URL usage
     $search = urlencode($_GET['search']);
@@ -86,6 +89,7 @@ $result = mysqli_query($conn, $sql);
 <head>
     <title>🧘‍♀️ SoulScript</title>
     <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
 </head>
 <body>
 
@@ -118,7 +122,9 @@ $result = mysqli_query($conn, $sql);
 
 <!-- Notes Section -->
 <a href="add.php" class="add-btn">+ New Journal Entry</a>
-<a href="index.php" class="home-link">home</a>
+<a href="index.php" class="home-link">Home</a>
+
+<div id="notes-area">
 <?php if (mysqli_num_rows($result) > 0): ?>
     <div class="notes-container">
     <?php while ($row = mysqli_fetch_assoc($result)): ?>
@@ -128,28 +134,35 @@ $result = mysqli_query($conn, $sql);
             <small>🕒 <?= date('d M Y, h:i A', strtotime($row['created_at'])) ?></small>
             <div class="note-actions">
                 <a href="edit.php?id=<?= $row['id'] ?>" class="edit-btn">✏️ Edit</a>
-                <a href="delete.php?id=<?= $row['id'] ?>" class="delete-btn" onclick="return confirm('Delete this note?');">🗑️ Delete</a>
+                <a href="delete.php" 
+                    class="delete-btn" 
+                    data-id="<?= $row['id'] ?>" 
+                    onclick="return false;">🗑️ Delete</a>
+
+
             </div>
         </div>
     <?php endwhile; ?>
     </div>
 
-    <!-- Pagination -->
+    <!-- ✅ AJAX-READY Pagination -->
     <div class="pagination">
-        <!-- urlencode($search) ==>hello world <<<(encode)>>> hello%20world -->
         <?php if ($page > 1): ?>
-            <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>&filter=<?= urlencode($filter) ?>">&laquo; Prev</a>
+            <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>&filter=<?= urlencode($filter) ?>" 
+               class="pagination-link">&laquo; Prev</a>
         <?php endif; ?>
 
         <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-            <a href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&filter=<?= urlencode($filter) ?>" 
-            class="<?= $i == $page ? 'active' : '' ?>">
+            <a href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&filter=<?= urlencode($filter) ?>"
+               class="pagination-link <?= $i == $page ? 'active' : '' ?>"
+               data-page="<?= $i ?>">
                 <?= $i ?>
             </a>
         <?php endfor; ?>
 
         <?php if ($page < $total_pages): ?>
-            <a href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>&filter=<?= urlencode($filter) ?>">Next &raquo;</a>
+            <a href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>&filter=<?= urlencode($filter) ?>" 
+               class="pagination-link">Next &raquo;</a>
         <?php endif; ?>
     </div>
 
@@ -162,6 +175,8 @@ $result = mysqli_query($conn, $sql);
         <div class="message">🌱 Every journey begins with one thought. Start writing now. 💭</div>
     <?php endif; ?>
 <?php endif; ?>
+</div> <!-- END #notes-area -->
+
 
 </body>
 </html>
