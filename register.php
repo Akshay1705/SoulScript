@@ -5,8 +5,8 @@ $registered = false;
 $error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = mysqli_real_escape_string($conn, $_POST["username"]);
-    $password = password_hash($_POST["password"], PASSWORD_DEFAULT);
+    $username = mysqli_real_escape_string($conn, $_POST["username"]);// Get the username from the form and escape it to prevent SQL injection
+    $password = password_hash($_POST["password"], PASSWORD_DEFAULT);// Hash the password for security
 
     $check = mysqli_query($conn, "SELECT * FROM users WHERE username='$username'");
     if (mysqli_num_rows($check) > 0) {
