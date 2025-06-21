@@ -86,9 +86,6 @@ $result = mysqli_query($conn, $sql);
 <head>
     <title>🧘‍♀️ SoulScript</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        
-    </style>
 </head>
 <body>
 
